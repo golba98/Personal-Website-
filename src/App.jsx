@@ -422,7 +422,6 @@ function Hero() {
       <div className="aurora" aria-hidden="true">
         <span className="aurora-a" />
         <span className="aurora-b" />
-        <span className="aurora-sweep" />
       </div>
 
       <div className="hero-inner">
