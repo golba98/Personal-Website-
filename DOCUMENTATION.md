@@ -17,7 +17,7 @@ flowchart LR
 
 ## Source organization and rendering
 
-`index.html` is the Vite HTML shell; `src/main.jsx` mounts the root component. `src/App.jsx` is intentionally monolithic: it contains static content arrays, reusable local components, portfolio sections, GitHub state, navigation, keyboard/pointer behavior, and transition effects. `src/styles.css` owns layout, typography, animation, responsive states, and the terminal-inspired visual language. `public/Resume.pdf` is copied unchanged into the build output.
+`index.html` is the Vite HTML shell; `src/main.jsx` mounts the root component. `src/App.jsx` is composition only — it calls the hooks and lays out the sections in order. The rest is split by responsibility: `src/github.js` owns the client tier of the GitHub path, `src/motion.js` owns the scroll-motion system, `src/components/` holds the two pieces with more than one consumer (`Words`, and the terminals), and `src/sections/` holds one file per page section. A component used by exactly one section lives in that section's file rather than in `components/`. `src/styles.css` remains a single file — it owns layout, typography, animation, responsive states, and the terminal-inspired visual language, and its cascade order is load-bearing. `public/Resume.pdf` is copied unchanged into the build output.
 
 There is no client-side router. Page sections are rendered by one React tree and navigated through document state and anchors. React state tracks the active project, fetched GitHub payload, loading/error states, and transient interaction. AbortController-based effects prevent obsolete GitHub work from updating an unmounted/currently replaced view.
 
@@ -37,4 +37,4 @@ Use `npm run dev`, `npm run build`, and `npm run preview`. Vite produces a stati
 
 React escapes repository text, and the API constrains account selection and HTTP method. External links, images, and the downloadable résumé remain browser trust boundaries. GitHub rate limits and stale cache windows are expected operational behavior. Manual verification should cover GraphQL-with-token, REST-without-token, complete API failure, mobile layouts, reduced motion, keyboard navigation, and resume download.
 
-Keep content/presentation changes in `src/App.jsx` and `src/styles.css` unless a feature gains enough independent state to justify extraction. Preserve the normalized GitHub response shape when changing provider logic. New server-side integrations must validate inputs, limit the proxy target, normalize output, and keep credentials outside Vite-exposed variables.
+Keep a section's markup in its own file under `src/sections/`, and promote a component into `src/components/` only once a second consumer exists. Preserve the normalized GitHub response shape when changing provider logic. New server-side integrations must validate inputs, limit the proxy target, normalize output, and keep credentials outside Vite-exposed variables.
