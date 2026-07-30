@@ -328,9 +328,19 @@ code {
 }
 
 .nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.nav-mark {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: none;
 }
 
 .nav-links {
@@ -1560,6 +1570,25 @@ a.repo:hover::after { opacity: 1; }
   }
 
   .contact-layout { grid-template-columns: 1fr; gap: 48px; }
+}
+
+/*
+ * Below this the name crowds the links, so the mark carries the brand alone.
+ * The name stays in the DOM rather than display:none, or the link loses its
+ * accessible name.
+ */
+@media (max-width: 560px) {
+  .nav-brand-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 }
 
 @media (max-width: 720px) {
