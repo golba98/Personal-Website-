@@ -2,7 +2,7 @@
 
 ## System overview
 
-This project is a compact Vite/React portfolio with one optional Vercel-style serverless endpoint. The React application owns all page content, transitions, project selection, responsive behavior, and live GitHub presentation. `api/github.js` protects a server-side GitHub token, normalizes REST and GraphQL responses into one browser contract, caches successful responses at the edge, and falls back from pinned GraphQL repositories to recent public REST repositories.
+This project is a compact Vite/React portfolio with one optional serverless endpoint, deployable to either Vercel or Cloudflare Pages. The React application owns all page content, transitions, project selection, responsive behavior, and live GitHub presentation. `shared/github.js` protects a server-side GitHub token, normalizes REST and GraphQL responses into one browser contract, caches successful responses at the edge, and falls back from pinned GraphQL repositories to recent public REST repositories.
 
 ```mermaid
 flowchart LR
@@ -23,7 +23,9 @@ There is no client-side router. Page sections are rendered by one React tree and
 
 ## GitHub endpoint contract
 
-`api/github.js` accepts GET only and validates the requested username against a conservative GitHub username pattern and the configured account. This prevents the deployment from becoming an unrestricted GitHub proxy. When `GITHUB_TOKEN` is present, the handler requests the configured user's profile and pinned repositories through GraphQL. Without a token it requests the public profile and recent non-fork repositories through REST. GraphQL errors trigger the same REST fallback.
+The endpoint accepts GET only and validates the requested username against a conservative GitHub username pattern and the configured account. This prevents the deployment from becoming an unrestricted GitHub proxy. When `GITHUB_TOKEN` is present, it requests the configured user's profile and pinned repositories through GraphQL. Without a token it requests the public profile and recent non-fork repositories through REST. GraphQL errors trigger the same REST fallback.
+
+That contract lives entirely in `shared/github.js`, whose `resolveGithubPayload({ requestedUsername, env })` returns a host-neutral `{ status, body }` and reads configuration from the passed `env` rather than a global. Two thin adapters supply the host's I/O: `api/github.js` for Vercel's Node `(req, res)` convention, and `functions/api/github.js` for Cloudflare Pages Functions, which speak Fetch API `Request`/`Response`, receive bindings on `env` instead of `process.env`, and must cache through the Cache API because Cloudflare does not apply `s-maxage` to Function responses on its own. Only one adapter is live per host; the other is inert.
 
 Both paths normalize profile and repository fields to a stable response with a `source` marker. Successful responses use shared-cache and stale-while-revalidate headers; errors are no-store. If the deployed endpoint fails, the client has a final public REST fallback so portfolio content can still load without pinned-repository fidelity.
 
@@ -31,7 +33,7 @@ Both paths normalize profile and repository fields to a stable response with a `
 
 ## Build, security, and operations
 
-Use `npm run dev`, `npm run build`, and `npm run preview`. Vite produces a static `dist/` directory. The `api/` route requires a host that supports the repository's serverless-function convention (such as Vercel); purely static hosts will exercise the browser's direct REST fallback instead. There is no database, test runner, or persistent browser state.
+Use `npm run dev`, `npm run build`, and `npm run preview`. Vite produces a static `dist/` directory, which is the complete deployable site on any static host; purely static hosts simply exercise the browser's direct REST fallback instead of the endpoint. Vercel picks up `api/github.js` by convention. Cloudflare Pages uses build command `npm run build`, output directory `dist`, and mounts `functions/api/github.js` at `/api/github` by its path, with `VITE_GITHUB_USERNAME` set as a build variable and `GITHUB_TOKEN` as a secret; `npx wrangler pages dev dist` serves that route locally. A `_redirects` SPA catch-all must not be added, as it would shadow the endpoint with HTML. There is no database, test runner, or persistent browser state.
 
 React escapes repository text, and the API constrains account selection and HTTP method. External links, images, and the downloadable résumé remain browser trust boundaries. GitHub rate limits and stale cache windows are expected operational behavior. Manual verification should cover GraphQL-with-token, REST-without-token, complete API failure, mobile layouts, reduced motion, keyboard navigation, and resume download.
 
