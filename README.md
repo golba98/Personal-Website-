@@ -41,7 +41,19 @@ The GitHub section loads live profile and repository data. Set `VITE_GITHUB_USER
 to choose the public account, or leave it unset to use `golba98`.
 
 Exact pinned repositories require a server-only `GITHUB_TOKEN` in the deployment
-environment so the Vercel API route can call GitHub GraphQL. Without that token,
+environment so the `/api/github` route can call GitHub GraphQL. Without that token,
 the site falls back to recent public non-fork repositories from GitHub REST. Never
 expose `GITHUB_TOKEN` with a `VITE_` prefix. Use a read-only token with the
 minimum permissions needed for public GraphQL profile data.
+
+## Deployment
+
+`npm run build` produces a static `dist/` that works on any static host. The
+optional endpoint ships as two adapters over one shared implementation, so either
+platform serves the same contract:
+
+- **Vercel** — zero config; `api/github.js` is picked up by convention.
+- **Cloudflare Pages** — build command `npm run build`, output directory `dist`;
+  `functions/api/github.js` is mounted at `/api/github`. Set
+  `VITE_GITHUB_USERNAME` as a build variable and `GITHUB_TOKEN` as a secret.
+  Run it locally with `npx wrangler pages dev dist` after a build.
