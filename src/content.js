@@ -9,6 +9,9 @@
  *  - model numbers: logs/phase15-500m/** and MODEL_CARD.md in the LLM repo
  *  - screenshots in /public/shots: captured from these apps running locally
  *  - the Codexa startup screen: read out of the Codexa source, see `startup`
+ *  - Cue's version and packaging: package.json and the dist:linux script in
+ *    Cue-Helper; the provider and no-API-key claims are covered by its
+ *    tests/unit suite, security-validation.test.ts among them
  *
  * Don't add a number here you can't point at a source for.
  */
@@ -123,12 +126,13 @@ export const projects = [
     year: "Dec 2025 — Jul 2026",
     role: "Real-time collaborative editor",
     summary:
-      "Several people edit one document at once. Yjs CRDTs run over WebSockets. A Durable Object owns each room, syncs state, tracks cursors, and writes to D1.",
+      "A document editor you open in a browser. Several people can be in the same document at once, each typing wherever they like — every keystroke lands on the other screens, with no save button and no one overwriting anyone.",
     proof:
-      "Runs on Cloudflare: Hono for routing and auth, D1 for users and documents, Durable Objects for live rooms.",
+      "Yjs CRDTs over WebSockets. A Durable Object owns each room, keeps its state in sync, tracks cursors, and persists to D1; Hono handles routing and auth on Cloudflare.",
     stack: ["Yjs / CRDT", "Durable Objects", "Cloudflare D1", "Hono", "WebSockets"],
-    shot: "/shots/syncroedit.png",
-    shotAlt: "SyncroEdit sign-in screen running locally",
+    shot: "/shots/syncroedit.webp",
+    shotAlt:
+      "A SyncroEdit document open in the editor, holding text typed by two people in the same room",
     caption: "Screenshot of the app running locally.",
     repo: "https://github.com/golba98/SyncroEdit",
   },
@@ -172,31 +176,31 @@ export const projects = [
     year: "Jul 2026",
     role: "Account-based streaming client",
     summary:
-      "A private movie and TV app with accounts, first-sign-in password changes, admin controls, session revocation, an audit log, and watch-party rooms.",
+      "A private movie and TV library you sign into. Browse what's trending, search the catalogue, open a title for its details and trailer, and save the ones you want later. Accounts are issued by an admin, and a group can watch something together in a synced room.",
     proof:
-      "The TMDB token stays server-side behind an authenticated Worker proxy. Playwright tests cover Chromium, Firefox, Android, iPhone, and iPad. Hosts no media.",
+      "The TMDB token stays server-side behind an authenticated Worker proxy. First sign-in forces a password change; admins can revoke sessions, and every action lands in an audit log. Playwright tests cover Chromium, Firefox, Android, iPhone, and iPad. Hosts no media.",
     stack: ["React 19", "TypeScript", "Cloudflare Workers", "D1", "Playwright"],
     shot: "/shots/fedora-movies.webp",
     shotAlt:
-      "A Fedora Movies watch-party room: the shared player, the in-sync indicator, and two connected participants",
-    caption: "Screenshot of a watch-party room running locally.",
+      "The Fedora Movies home screen: a featured title across the top and a row of trending film posters below it",
+    caption: "Screenshot of the app running locally.",
     repo: "https://github.com/golba98/Movie_App",
   },
   {
-    id: "inequality",
-    title: "SA Inequality",
-    year: "Jun 2026 — Jul 2026",
-    role: "Survey platform and data story",
+    id: "cue",
+    title: "Cue",
+    year: "Jul 2026",
+    role: "Desktop assistant for authenticated coding CLIs",
     summary:
-      "A South African cost-of-living survey and data story. The survey uses Turnstile, a field allowlist, and a 16 KB request cap. The story uses WID.world, World Bank, Stats SA, and the 2017 Land Audit.",
+      "A desktop app that floats a small overlay over whatever you're working on. Ask it a question, or let it look at your screen or listen to a meeting, and it answers through the coding CLIs you already have installed and signed in.",
     proof:
-      "No IP address or user agent is stored. Every chart names its source file. Placeholder survey data is labelled.",
-    stack: ["Cloudflare Workers", "D1", "Turnstile", "Data visualisation"],
-    shot: "/shots/dataviz.png",
-    shotAlt: "The Gini coefficient chart from the inequality data story",
+      "v0.2.0, packaged as an AppImage and an RPM. Adapters for Claude Code, Codex CLI, and Gemini CLI, each running read-only and sandboxed. It stores no provider API key — the CLIs keep their own logins. Transcription is local whisper.cpp; captured audio and screenshots are deleted after every request.",
+    stack: ["Electron", "TypeScript", "whisper.cpp", "PipeWire", "Vitest"],
+    shot: "/shots/cue.webp",
+    shotAlt:
+      "The Cue overlay: a question answered through the Claude Code CLI, above the composer and its provider controls",
     caption: "Screenshot of the app running locally.",
-    repo: "https://github.com/golba98/Survey-App",
-    secondaryRepo: { label: "Data story", url: "https://github.com/golba98/Data-Visualizer" },
+    repo: "https://github.com/golba98/Cue-Helper",
   },
 ];
 
@@ -255,10 +259,11 @@ export const repoBlurbs = {
     "A 248M-parameter decoder-only transformer written from scratch in PyTorch, tokenizer to release export.",
   Movie_App:
     "Account-based movie and TV app. React 19 and a Cloudflare Worker proxying TMDB, with D1-backed accounts.",
-  // Cue is no longer a listed project, but the repo is still public and still
-  // shows up as a live GitHub card, so it keeps its blurb.
   "Cue-Helper":
     "Fedora-first desktop assistant driving already-authenticated coding CLIs, with local whisper.cpp transcription.",
+  // The survey and the data story are no longer listed projects, but both repos
+  // are still public and still show up as live GitHub cards, so they keep their
+  // blurbs.
   "Survey-App":
     "Cloudflare Worker and D1 survey on South African cost of living, with Turnstile and no IP retention.",
   "Data-Visualizer":
