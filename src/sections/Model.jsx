@@ -11,7 +11,7 @@ function LossChart() {
   const pad = { top: 24, right: 28, bottom: 62, left: 52 };
 
   const xMax = Math.max(...points.map((p) => p.step));
-  const yMin = 0.8;
+  const yMin = 1.8;
   const yMax = Math.max(...points.map((p) => p.loss));
 
   const px = (v) => pad.left + (v / xMax) * (w - pad.left - pad.right);
@@ -25,9 +25,9 @@ function LossChart() {
       <svg
         viewBox={`0 0 ${w} ${h}`}
         role="img"
-        aria-label="Validation loss falling from 1.75 to 0.99 over 7,630 optimizer steps"
+        aria-label="Conversational SFT validation loss falling from 2.31 to 2.03 over 6,000 optimizer steps"
       >
-        {[1.8, 1.5, 1.2, 0.9].map((t) => (
+        {[2.4, 2.2, 2.0, 1.8].map((t) => (
           <g key={t}>
             <line className="grid" x1={pad.left} y1={py(t)} x2={w - pad.right} y2={py(t)} />
             <text className="axis" x={pad.left - 10} y={py(t) + 4} textAnchor="end">
@@ -36,7 +36,7 @@ function LossChart() {
           </g>
         ))}
 
-        {[0, 2000, 4000, 6000, 7630].map((t) => (
+        {[0, 1500, 3000, 4500, 6000].map((t) => (
           <text className="axis" key={t} x={px(t)} y={h - pad.bottom + 22} textAnchor="middle">
             {t.toLocaleString("en")}
           </text>
@@ -64,15 +64,15 @@ function LossChart() {
           y={py(points.at(-1).loss) - 14}
           textAnchor="end"
         >
-          0.9931
+          {points.at(-1).loss.toFixed(4)}
         </text>
         <text className="axis axis-title" x={w / 2} y={h - 14} textAnchor="middle">
           optimizer step
         </text>
       </svg>
       <figcaption>
-        Validation loss, phase15-500m. Read from{" "}
-        <code>logs/phase15-500m/evaluations/step_*.json</code>.
+        Conversational SFT validation loss, codexa-900m-sft-v2. Read from{" "}
+        <code>logs/codexa-900m-sft-v2/train_metrics.jsonl</code>.
       </figcaption>
     </figure>
   );
@@ -124,7 +124,7 @@ export default function Model() {
           <Words text="I trained a model" />
         </h2>
         <p className="lede" data-stagger>
-          248M parameters, trained from scratch on one 16 GB GPU. 7,630 steps, bf16, no crashes.
+          934M parameters, trained from scratch on one 16 GB GPU. Base pretraining and conversational SFT are both complete; native inference remains the trusted runtime.
         </p>
       </div>
 
@@ -146,6 +146,7 @@ export default function Model() {
       <p className="caveat" data-reveal>
         <strong>What it can't do.</strong> {lossCurve.caveat}
       </p>
+
     </section>
   );
 }
