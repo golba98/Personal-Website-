@@ -6,7 +6,8 @@
  * actually does, whether it shipped, and what the training logs recorded.
  *
  *  - npm figures: registry.npmjs.org (verified 2026-07-30)
- *  - model numbers: logs/phase15-500m/** and MODEL_CARD.md in the LLM repo
+ *  - model numbers: logs/codexa-900m-base-v1/**, logs/codexa-900m-sft-v2/**,
+ *    and configs/1b.yaml in the LLM repo
  *  - screenshots in /public/shots: captured from these apps running locally
  *  - the Codexa startup screen: read out of the Codexa source, see `startup`
  *  - Cue's version and packaging: package.json and the dist:linux script in
@@ -162,12 +163,12 @@ export const projects = [
     id: "llm",
     title: "Codexa v1",
     year: "Jul 2026",
-    role: "248M-parameter transformer, trained from scratch",
+    role: "934M-parameter transformer, trained from scratch",
     summary:
-      "A decoder-only transformer built from scratch in Python and PyTorch. Own tokenizer, data pipeline, and training loop.",
+      "A 24-layer decoder-only transformer built from scratch in Python and PyTorch, with a 16,384-token BPE tokenizer, memory-mapped data pipeline, mixed-precision training, and native conversational SFT.",
     proof:
-      "The 500M-token run finished 7,630 steps: no non-finite loss, CUDA failure, or thermal fault. Loss 3.6861 → 0.9931; perplexity 2.699; 28,045 tokens/sec on one 16 GB GPU.",
-    stack: ["PyTorch", "Python", "bf16", "BPE tokenizer"],
+      "The base run completed 10,000 optimizer steps and 655,360,000 tokens on CUDA with bf16 and AdamW8bit. Conversational SFT v2 then completed 6,000 steps and 103,459,920 tokens, reaching 1.5768 training loss and 2.0316 validation loss.",
+    stack: ["PyTorch", "Python", "bf16", "BPE tokenizer", "CUDA"],
     repo: "https://github.com/golba98/LLM-Codexa-v1",
   },
   {
@@ -207,47 +208,46 @@ export const projects = [
 /** Architecture, from MODEL_CARD.md in LLM-Codexa-v1. One home for each number. */
 export const modelSpec = {
   rows: [
-    ["Parameters", "248M"],
-    ["Layers", "34"],
-    ["Hidden size", "768"],
-    ["Attention heads", "12"],
+    ["Parameters", "934,356,480"],
+    ["Layers", "24"],
+    ["Hidden size", "1,536"],
+    ["Attention heads", "24"],
     ["Context length", "2,048 tokens"],
-    ["Vocabulary", "8,192"],
+    ["Vocabulary", "16,384"],
     ["Feed-forward", "SwiGLU"],
     ["Normalisation", "RMSNorm"],
     ["Embeddings", "Tied input/output"],
     ["Tokenizer", "Byte-level BPE"],
     ["Precision", "bf16 mixed"],
   ],
-  source: "MODEL_CARD.md, LLM-Codexa-v1",
+  source: "configs/1b.yaml and logs/codexa-900m-base-v1/run_metadata.json",
 };
 
 /**
- * Real validation loss, read from logs/phase15-500m/evaluations/step_*.json.
- * Tokens = optimizer step × gradient_accumulation(16) × micro_batch(2) × context(2048).
+ * Real conversational-SFT validation loss, read from
+ * logs/codexa-900m-sft-v2/train_metrics.jsonl.
  *
  * `gpu` keeps `value` and `display` apart so a count-up can interpolate the number
  * but land on the exact figure from the logs rather than a rounded reconstruction.
  */
 export const lossCurve = {
   points: [
-    { step: 1000, loss: 1.7469, ppl: 5.737 },
-    { step: 2000, loss: 1.349, ppl: 3.853 },
-    { step: 3000, loss: 1.2081, ppl: 3.347 },
-    { step: 4000, loss: 1.1212, ppl: 3.069 },
-    { step: 5000, loss: 1.0659, ppl: 2.904 },
-    { step: 6000, loss: 1.0206, ppl: 2.775 },
-    { step: 7000, loss: 1.0016, ppl: 2.723 },
-    { step: 7630, loss: 0.9931, ppl: 2.699 },
+    { step: 100, loss: 2.3052, ppl: 10.026 },
+    { step: 1000, loss: 2.2307, ppl: 9.307 },
+    { step: 2000, loss: 2.1706, ppl: 8.765 },
+    { step: 3000, loss: 2.1031, ppl: 8.191 },
+    { step: 4000, loss: 2.0654, ppl: 7.887 },
+    { step: 5000, loss: 2.0311, ppl: 7.623 },
+    { step: 6000, loss: 2.0316, ppl: 7.626 },
   ],
   gpu: [
-    { value: 85.2, display: "85.2", unit: "%", label: "mean GPU utilisation" },
-    { value: 11840, display: "11,840", unit: "MiB", label: "peak memory" },
-    { value: 260, display: "260", unit: "W", label: "peak power draw" },
-    { value: 65, display: "65", unit: "°C", label: "peak temperature" },
+    { value: 7700.7, display: "7,700.7", unit: "tok/s", label: "median base throughput" },
+    { value: 12920, display: "12,920", unit: "MiB", label: "peak reserved VRAM" },
+    { value: 10000, display: "10,000", unit: "steps", label: "completed base steps" },
+    { value: 6000, display: "6,000", unit: "steps", label: "completed SFT steps" },
   ],
   caveat:
-    "Trained on TinyStories. It writes short stories; code, instructions, and long context are weak. The model card says the same.",
+    "Native PyTorch inference works, but conversational quality remains under evaluation. The GGUF/LM Studio export failed its behavioral compatibility gate, so the native checkpoint is the current source of truth.",
 };
 
 export const repoBlurbs = {
@@ -256,7 +256,7 @@ export const repoBlurbs = {
   Codexa:
     "Terminal UI for coding agents — Codex, Claude Code, Gemini, and local models. Published on npm.",
   "LLM-Codexa-v1":
-    "A 248M-parameter decoder-only transformer written from scratch in PyTorch, tokenizer to release export.",
+    "A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.",
   Movie_App:
     "Account-based movie and TV app. React 19 and a Cloudflare Worker proxying TMDB, with D1-backed accounts.",
   "Cue-Helper":
