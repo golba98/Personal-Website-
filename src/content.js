@@ -5,11 +5,14 @@
  * engineering. What's left is the stuff that survives scrutiny: what the thing
  * actually does, whether it shipped, and what the training logs recorded.
  *
- *  - npm figures: registry.npmjs.org (verified 2026-07-30)
+ *  - npm figures: registry.npmjs.org (verified 2026-09-04)
  *  - model numbers: logs/codexa-900m-base-v1/**, logs/codexa-900m-sft-v2/**,
  *    and configs/1b.yaml in the LLM repo
  *  - screenshots in /public/shots: captured from these apps running locally
  *  - the Codexa startup screen: read out of the Codexa source, see `startup`
+ *  - SyncroEdit's architecture: wrangler.toml bindings and src-worker/ in
+ *    SyncroEdit; the two-user collaboration claim is what
+ *    tests/e2e/collaboration.test.js actually drives
  *  - Cue's version and packaging: package.json and the dist:linux script in
  *    Cue-Helper; the provider and no-API-key claims are covered by its
  *    tests/unit suite, security-validation.test.ts among them
@@ -45,12 +48,21 @@ export const navItems = [
  * Codexa's startup screen, stored as parts rather than pre-drawn box art so the
  * component redraws the borders and the character grid can't drift.
  *
- * Read out of the Codexa v1.0.8 source on 2026-07-30:
+ * Read out of the Codexa v1.0.26 source on 2026-09-04:
  *   logo      src/ui/render/logoVariants.ts      — CODEXA_WORDMARK, 6 rows, 49 cols each
  *   layout    src/ui/timeline/timelineMeasure.ts — meta sits right of the logo on a
  *             2-column gap, vertically centred, so it starts on logo row 1
  *   composer  src/ui/chrome/BottomComposer.tsx   — round border, "❯ " prefix, placeholder
- *   footer    src/ui/render/runtimeDisplay.ts    — "Context: 0 / ~200K" at zero tokens
+ *   footer    src/ui/render/runtimeDisplay.ts    — buildActiveRuntimeDisplay() at zero tokens
+ *
+ * The screen shows the local route, so the footer is derived rather than copied
+ * from the Claude Code one it used to show. runtimeDisplay.ts drops the
+ * reasoning tag when providerId is "local" — local runtimes own that setting and
+ * Codexa cannot adjust it — so there is no "(Low)" after the model, and the
+ * model is the raw id LM Studio reports rather than a prettified name. The "~"
+ * is gone with it: it marks an *estimated* context length, and a local model's
+ * length comes back from /v1/models as verified. formatContextCompact() then
+ * rounds 131,072 to "131K".
  *
  * No status row: getStatusLine() returns null while idle. "✧ Claude ready" is the
  * responding state, so putting it on a startup screen would be quietly false.
@@ -75,11 +87,11 @@ export const startup = {
   ],
   // Three tones by row index, mirroring logoPrimary / logoSecondary / logoShadow.
   logoTone: [1, 1, 2, 2, 3, 3],
-  meta: ["Codexa v1.0.8", "Workspace: Codexa", "Provider: Claude Code CLI"],
+  meta: ["Codexa v1.0.26", "Workspace: Codexa", "Provider: Local"],
   prompt: "❯ ",
   placeholder: "Ask Codexa, run !shell, or use /command",
-  footerLeft: "Claude Code CLI / Sonnet 4.6 (Low)",
-  footerRight: "Context: 0 / ~200K",
+  footerLeft: "Local / qwen/qwen3.8-27b",
+  footerRight: "Context: 0 / 131K",
 };
 
 /**
@@ -124,39 +136,39 @@ export const projects = [
   {
     id: "syncroedit",
     title: "SyncroEdit",
-    year: "Dec 2025 — Jul 2026",
+    year: "Dec 2025 — Aug 2026",
     role: "Real-time collaborative editor",
     summary:
-      "A document editor you open in a browser. Several people can be in the same document at once, each typing wherever they like — every keystroke lands on the other screens, with no save button and no one overwriting anyone.",
+      "A document workspace you sign into. Several people can be in the same document at once, each typing wherever they like — every keystroke lands on the other screens, alongside a chat panel for the conversation around the text, and no one overwrites anyone.",
     proof:
-      "Yjs CRDTs over WebSockets. A Durable Object owns each room, keeps its state in sync, tracks cursors, and persists to D1; Hono handles routing and auth on Cloudflare.",
-    stack: ["Yjs / CRDT", "Durable Objects", "Cloudflare D1", "Hono", "WebSockets"],
+      "Yjs CRDTs over WebSockets. A Durable Object owns each room, keeps its state in sync, relays presence, and persists to D1 on a debounce; a second Durable Object class holds the abuse counters, and the socket opens on a short-lived ticket rather than the session token. Hono routes and authenticates on Cloudflare, with email-verified signup. A Playwright test drives two browsers through one document, takes one offline mid-edit, and asserts both converge.",
+    stack: ["Yjs / CRDT", "Quill 2", "Durable Objects", "Cloudflare D1", "Hono", "WebSockets"],
     shot: "/shots/syncroedit.webp",
     shotAlt:
-      "A SyncroEdit document open in the editor, holding text typed by two people in the same room",
+      "A SyncroEdit document open in the editor, under the ribbon: paragraphs typed by two accounts in the same room, and the document chat panel open beside them holding a message from each",
     caption: "Screenshot of the app running locally.",
     repo: "https://github.com/golba98/SyncroEdit",
   },
   {
     id: "codexa",
     title: "Codexa",
-    year: "Apr 2026 — Jul 2026",
+    year: "Apr 2026 — Sep 2026",
     role: "Terminal UI for coding agents",
     summary:
-      "One terminal for Codex, Claude Code, Gemini, and local models. History, workspace locks, TOML config, themes, and slash commands. TypeScript, Bun, Ink.",
+      "One terminal for the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and for local models. History, workspace locks, TOML config, themes, and slash commands. TypeScript, Bun, Ink.",
     proof:
-      "On npm as @golba98/codexa. Eight releases since May 2026; now v1.0.8. Four backends, each with auth, streaming, and cancellation.",
+      "On npm as @golba98/codexa. Twenty-five releases since May 2026; now v1.0.26. Six shipped provider routes — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.",
     stack: ["TypeScript", "Bun", "Ink", "npm"],
     npm: {
       name: "@golba98/codexa",
-      version: "1.0.8",
+      version: "1.0.26",
       url: "https://www.npmjs.com/package/@golba98/codexa",
       install: "npm install -g @golba98/codexa",
     },
     startup,
     startupCompact,
     caption:
-      "Recreated from the Codexa v1.0.8 source — logo from logoVariants.ts, layout from timelineMeasure.ts, composer from BottomComposer.tsx. Not a screenshot.",
+      "Recreated from the Codexa v1.0.26 source — logo from logoVariants.ts, layout from timelineMeasure.ts, composer from BottomComposer.tsx. Not a screenshot.",
     repo: "https://github.com/golba98/Codexa",
   },
   {
@@ -252,9 +264,9 @@ export const lossCurve = {
 
 export const repoBlurbs = {
   SyncroEdit:
-    "Real-time collaborative editor. Yjs CRDTs over WebSockets, coordinated by Cloudflare Durable Objects.",
+    "Collaborative document workspace with in-document chat. Yjs CRDTs over WebSockets, coordinated by Cloudflare Durable Objects.",
   Codexa:
-    "Terminal UI for coding agents — Codex, Claude Code, Gemini, and local models. Published on npm.",
+    "Terminal UI for coding agents — the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and local models. Published on npm.",
   "LLM-Codexa-v1":
     "A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.",
   Movie_App:
