@@ -160,7 +160,7 @@ export const projects = [
       "One terminal for the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and for local models. History, workspace locks, TOML config, themes, and slash commands. TypeScript, Bun, Ink.",
     note: "The other long project, on the same footing as SyncroEdit — kept alive and rebuilt as the tooling around it changes, rather than finished and shelved.",
     proof:
-      "On npm as @golba98/codexa. Twenty-five releases since May 2026; now v1.0.26. Six shipped provider routes — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.",
+      "On npm as @golba98/codexa. Twenty-five releases since May 2026; now v1.0.26. Six provider routes work — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.",
     stack: ["TypeScript", "Bun", "Ink", "npm"],
     npm: {
       name: "@golba98/codexa",
@@ -284,7 +284,7 @@ export const lossCurve = {
     },
   ],
   caveat:
-    "Native PyTorch inference works, but conversational quality remains under evaluation. The GGUF/LM Studio export failed its behavioral compatibility gate, so the native checkpoint is the current source of truth.",
+    "Native PyTorch inference works, but conversational quality is still being evaluated. The GGUF/LM Studio export failed its behavioral compatibility gate, so the native checkpoint is the only build that runs correctly.",
 };
 
 export const repoBlurbs = {
