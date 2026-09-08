@@ -381,7 +381,7 @@ code {
   display: block;
   height: 1.5px;
   background: linear-gradient(90deg, var(--ink), transparent);
-  transform: scaleX(var(--scroll));
+  transform: scaleX(var(--scroll, 0));
   transform-origin: left;
 }
 
@@ -402,7 +402,7 @@ code {
   z-index: -1;
   pointer-events: none;
   /* fades out as the hero leaves */
-  opacity: calc(1 - var(--hero));
+  opacity: calc(1 - var(--hero, 0));
 }
 
 .aurora span {
@@ -461,8 +461,8 @@ code {
   margin: 0 auto;
   padding: 0 var(--gutter);
   /* the hero recedes slightly as you scroll past it */
-  opacity: calc(1 - var(--hero) * 0.85);
-  transform: translate3d(0, calc(var(--hero) * -40px), 0);
+  opacity: calc(1 - var(--hero, 0) * 0.85);
+  transform: translate3d(0, calc(var(--hero, 0) * -40px), 0);
 }
 
 .hero-eyebrow {
