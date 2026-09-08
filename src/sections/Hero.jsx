@@ -27,25 +27,6 @@ export default function Hero() {
           BSc Computer Science student, University of London. Everything below is a repo you can
           clone and run.
         </p>
-
-        <div className="hero-actions rise" style={{ "--d": "780ms" }}>
-          <a className="button button-primary" href={profile.resumeUrl} download>
-            Download CV
-          </a>
-          <a className="button" href={`mailto:${profile.email}`}>
-            Email
-          </a>
-          <a className="button" href={profile.github} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-        </div>
-
-        <div className="scroll-hint rise" style={{ "--d": "1020ms" }} aria-hidden="true">
-          <span className="scroll-track">
-            <span className="scroll-dot" />
-          </span>
-          Scroll
-        </div>
       </div>
     </section>
   );

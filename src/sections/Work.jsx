@@ -39,6 +39,11 @@ function Project({ project, index }) {
         <p className="project-summary" data-stagger>
           {project.summary}
         </p>
+        {project.note && (
+          <p className="project-note" data-stagger>
+            {project.note}
+          </p>
+        )}
         <p className="project-proof" data-stagger>
           {project.proof}
         </p>

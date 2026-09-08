@@ -1,6 +1,6 @@
 import { profile } from "./content";
 import { useGithubData } from "./github";
-import { usePointerMagnet, useReveal, useScrollMotion } from "./motion";
+import { useReveal, useScrollMotion } from "./motion";
 import Nav from "./sections/Nav";
 import Hero from "./sections/Hero";
 import Work from "./sections/Work";
@@ -14,7 +14,6 @@ function App() {
   const github = useGithubData();
 
   useReveal();
-  usePointerMagnet();
 
   return (
     <>

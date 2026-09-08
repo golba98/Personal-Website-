@@ -12,13 +12,13 @@ export default function Toolkit() {
           <Words text="What I work with" />
         </h2>
         <p className="lede" data-stagger>
-          All of it is used above. I run Fedora.
+          Everything here is in a repo I can point at. I run Fedora.
         </p>
       </div>
 
       <div className="toolkit" data-reveal>
-        {toolkitGroups.map((group) => (
-          <div className="toolkit-group" key={group.label} data-stagger>
+        {toolkitGroups.map((group, index) => (
+          <div className="toolkit-group" key={group.label} data-stagger style={{ "--i": index }}>
             <h3>{group.label}</h3>
             <ul>
               {group.items.map((item) => (
