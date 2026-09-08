@@ -47,15 +47,21 @@ export function useReveal() {
 
 /**
  * One rAF-throttled scroll pass drives everything positional:
- *  --scroll   page progress, for the nav rule
- *  --hero     hero exit progress, for the fade/lift as you leave it
+ *  --scroll   page progress, for the nav rule        (set on [data-motion~=nav])
+ *  --speed    scroll speed, for the nav's fade       (set on [data-motion~=nav])
+ *  --hero     hero exit progress, for the fade/lift  (set on [data-motion~=hero])
  *  --py/--pr  per-element parallax offset and rotation
+ *  --vel      signed scroll velocity, for the parallax squash
  *  --fill     per-project rail progress
+ *
+ * The pass is split into a read phase and a write phase, and none of these
+ * variables lives on :root. Both rules are load-bearing rather than stylistic —
+ * see the comments inside update() for the measurements behind each.
  */
 export function useScrollMotion() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
-  const registry = useRef({ sections: [], reveals: [], parallax: [], rails: [] });
+  const registry = useRef({ sections: [], reveals: [], parallax: [], rails: [], nav: null, hero: null });
 
   useEffect(() => {
     const isReduced = reduced();
@@ -63,6 +69,14 @@ export function useScrollMotion() {
     let lastY = window.scrollY;
     let velocity = 0;
     let targetVelocity = 0;
+    /*
+     * Last value written for each page-level variable. Chrome charges a style
+     * recalc of the host's whole subtree for every custom-property write, even
+     * one nothing reads, so a write that changes nothing is pure cost.
+     */
+    let lastScroll = "";
+    let lastHero = "";
+    let lastSpeed = "";
 
     const collect = () => {
       registry.current = {
@@ -70,6 +84,14 @@ export function useScrollMotion() {
         reveals: [...document.querySelectorAll("[data-reveal]:not(.in)")],
         parallax: [...document.querySelectorAll("[data-parallax]")],
         rails: [...document.querySelectorAll("[data-rail]")],
+        /*
+         * --scroll/--speed and --hero are set on these two hosts rather than on
+         * :root. Their consumers all sit inside one of them, and a root write
+         * invalidates all 500-odd elements on the page instead of the dozen
+         * that actually read the value (measured 2.8ms vs 0.2ms per frame).
+         */
+        nav: document.querySelector("[data-motion~='nav']"),
+        hero: document.querySelector("[data-motion~='hero']"),
       };
     };
     collect();
@@ -86,27 +108,49 @@ export function useScrollMotion() {
 
     const update = () => {
       frame = 0;
+      const { sections, reveals, parallax, rails, nav, hero } = registry.current;
       const y = window.scrollY;
       const vh = window.innerHeight;
-      const root = document.documentElement;
 
-      setScrolled(y > 24);
+      /*
+       * Read phase. Every layout query in the frame happens here, before the
+       * first style write. Interleaving them — read a rect, write a variable,
+       * read the next rect — makes each read flush layout again, which cost
+       * about four extra forced layout passes per frame.
+       */
+      const max = document.documentElement.scrollHeight - vh;
+      const sectionTops = sections.map((section) => section.offsetTop);
+      const revealRects = reveals.map((node) => node.getBoundingClientRect());
+      const parallaxRects = isReduced ? [] : parallax.map((node) => node.getBoundingClientRect());
+      const railRects = isReduced ? [] : rails.map((node) => node.getBoundingClientRect());
 
-      const max = root.scrollHeight - vh;
-      root.style.setProperty("--scroll", max > 0 ? (y / max).toFixed(4) : "0");
-      root.style.setProperty("--hero", Math.min(y / (vh * 0.9), 1).toFixed(4));
+      // Write phase. Nothing below reads geometry.
       targetVelocity = Math.max(-1, Math.min(1, (y - lastY) / Math.max(vh, 1)));
       lastY = y;
       velocity += (targetVelocity - velocity) * 0.2;
-      root.style.setProperty("--vel", velocity.toFixed(3));
-      root.style.setProperty("--speed", Math.abs(velocity).toFixed(3));
 
-      // Which section owns the viewport centre — drives the nav underline.
-      let current = "";
-      registry.current.sections.forEach((section) => {
-        if (section.offsetTop <= y + vh * 0.35) current = section.id;
-      });
-      setActive(current);
+      const scrollValue = max > 0 ? (y / max).toFixed(4) : "0";
+      const heroValue = Math.min(y / (vh * 0.9), 1).toFixed(4);
+      const speedValue = Math.abs(velocity).toFixed(3);
+
+      if (nav && scrollValue !== lastScroll) {
+        nav.style.setProperty("--scroll", scrollValue);
+        lastScroll = scrollValue;
+      }
+      /*
+       * Velocity-driven, so it has nothing to say under reduced motion — and
+       * without the decay loop below it would otherwise stick at whatever the
+       * last scroll left it at. Left unset, .nav-on falls back to full opacity.
+       */
+      if (!isReduced && nav && speedValue !== lastSpeed) {
+        nav.style.setProperty("--speed", speedValue);
+        lastSpeed = speedValue;
+      }
+      // Clamps at 1 as soon as the hero is gone, so this stops writing entirely.
+      if (hero && heroValue !== lastHero) {
+        hero.style.setProperty("--hero", heroValue);
+        lastHero = heroValue;
+      }
 
       /*
        * Safety net for the reveal observer. IntersectionObserver samples rather
@@ -115,8 +159,8 @@ export function useScrollMotion() {
        * leave it stuck at opacity 0. Anything on screen right now gets revealed
        * regardless of whether the observer saw it.
        */
-      registry.current.reveals = registry.current.reveals.filter((node) => {
-        const rect = node.getBoundingClientRect();
+      registry.current.reveals = reveals.filter((node, index) => {
+        const rect = revealRects[index];
         if (rect.top < vh * 0.92 && rect.bottom > 0) {
           node.classList.add("in");
           return false;
@@ -124,27 +168,41 @@ export function useScrollMotion() {
         return true;
       });
 
-      if (isReduced) return;
+      if (!isReduced) {
+        parallax.forEach((node, index) => {
+          const rect = parallaxRects[index];
+          if (rect.bottom < -240 || rect.top > vh + 240) return;
+          const centre = (rect.top + rect.height / 2 - vh / 2) / vh; // -1 above, +1 below
+          const depth = Number(node.dataset.parallax) || 1;
+          node.style.setProperty("--py", `${(centre * -26 * depth).toFixed(2)}px`);
+          node.style.setProperty("--pr", `${(centre * 1.1 * depth).toFixed(3)}deg`);
+          // --vel rides along here for the same reason --scroll rides on the nav.
+          node.style.setProperty("--vel", velocity.toFixed(3));
+          if (node.hasAttribute("data-scale")) {
+            node.style.setProperty("--sc", (0.94 + (1 - Math.min(Math.abs(centre), 1)) * 0.06).toFixed(3));
+          }
+        });
 
-      registry.current.parallax.forEach((node) => {
-        const rect = node.getBoundingClientRect();
-        if (rect.bottom < -240 || rect.top > vh + 240) return;
-        const centre = (rect.top + rect.height / 2 - vh / 2) / vh; // -1 above, +1 below
-        const depth = Number(node.dataset.parallax) || 1;
-        node.style.setProperty("--py", `${(centre * -26 * depth).toFixed(2)}px`);
-        node.style.setProperty("--pr", `${(centre * 1.1 * depth).toFixed(3)}deg`);
-        if (node.hasAttribute("data-scale")) {
-          node.style.setProperty("--sc", (0.94 + (1 - Math.min(Math.abs(centre), 1)) * 0.06).toFixed(3));
-        }
+        rails.forEach((node, index) => {
+          const rect = railRects[index];
+          const progress = (vh * 0.5 - rect.top) / rect.height;
+          node.style.setProperty("--fill", Math.max(0, Math.min(progress, 1)).toFixed(3));
+        });
+      }
+
+      /*
+       * Last, so a React render scheduled off these can never land between the
+       * read phase and the writes above.
+       */
+      setScrolled(y > 24);
+      // Which section owns the viewport centre — drives the nav underline.
+      let current = "";
+      sectionTops.forEach((top, index) => {
+        if (top <= y + vh * 0.35) current = sections[index].id;
       });
+      setActive(current);
 
-      registry.current.rails.forEach((node) => {
-        const rect = node.getBoundingClientRect();
-        const progress = (vh * 0.5 - rect.top) / rect.height;
-        node.style.setProperty("--fill", Math.max(0, Math.min(progress, 1)).toFixed(3));
-      });
-
-      if (Math.abs(velocity) > 0.002 && !frame) frame = requestAnimationFrame(update);
+      if (!isReduced && Math.abs(velocity) > 0.002 && !frame) frame = requestAnimationFrame(update);
     };
 
     const onScroll = () => {

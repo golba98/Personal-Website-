@@ -3,7 +3,7 @@ import { profile } from "../content";
 
 export default function Hero() {
   return (
-    <section id="top" className="hero">
+    <section id="top" className="hero" data-motion="hero">
       <div className="aurora" aria-hidden="true">
         <span className="aurora-a" />
         <span className="aurora-b" />

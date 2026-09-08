@@ -20,7 +20,7 @@ function Mark() {
 
 export default function Nav({ scrolled, active }) {
   return (
-    <header className={`nav${scrolled ? " nav-on" : ""}`}>
+    <header className={`nav${scrolled ? " nav-on" : ""}`} data-motion="nav">
       <div className="nav-inner">
         <a className="nav-brand" href="#top">
           <Mark />
