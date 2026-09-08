@@ -124,7 +124,10 @@ export default function Model() {
           <Words text="I trained a model" />
         </h2>
         <p className="lede" data-stagger>
-          934M parameters, trained from scratch on one 16 GB GPU. Base pretraining and conversational SFT are both complete; native PyTorch is still the only runtime that runs it correctly.
+          Codexa v1 — 934M parameters, trained from scratch on one 16 GB GPU, so Codexa can run a
+          model of its own rather than routing out to someone else's CLI. Base pretraining and
+          conversational SFT are both complete; native PyTorch is still the only runtime that runs
+          it correctly.
         </p>
       </div>
 
