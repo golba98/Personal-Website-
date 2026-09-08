@@ -13,9 +13,10 @@
  *  - SyncroEdit's architecture: wrangler.toml bindings and src-worker/ in
  *    SyncroEdit; the two-user collaboration claim is what
  *    tests/e2e/collaboration.test.js actually drives
- *  - Cue's version and packaging: package.json and the dist:linux script in
- *    Cue-Helper; the provider and no-API-key claims are covered by its
- *    tests/unit suite, security-validation.test.ts among them
+ *  - the RPG engine: the "ENGINE FEATURES" section of the Game_Development
+ *    README for the generation algorithms, game.html lines 91-93 for the
+ *    pinned PixiJS and p5 versions, wrangler.jsonc for the Cloudflare target,
+ *    and `npm test` there for the test count
  *
  * Don't add a number here you can't point at a source for.
  */
@@ -136,10 +137,11 @@ export const projects = [
   {
     id: "syncroedit",
     title: "SyncroEdit",
-    year: "Dec 2025 — Aug 2026",
+    year: "Dec 2025 — Current",
     role: "Real-time collaborative editor",
     summary:
       "A document workspace you sign into. Several people can be in the same document at once, each typing wherever they like — every keystroke lands on the other screens, alongside a chat panel for the conversation around the text, and no one overwrites anyone.",
+    note: "A long project, and years of it still ahead. It isn't aimed at becoming a real product — it is the place where each new skill gets applied to something already running: tighter security, DevOps, CI/CD, whatever comes next.",
     proof:
       "Yjs CRDTs over WebSockets. A Durable Object owns each room, keeps its state in sync, relays presence, and persists to D1 on a debounce; a second Durable Object class holds the abuse counters, and the socket opens on a short-lived ticket rather than the session token. Hono routes and authenticates on Cloudflare, with email-verified signup. A Playwright test drives two browsers through one document, takes one offline mid-edit, and asserts both converge.",
     stack: ["Yjs / CRDT", "Quill 2", "Durable Objects", "Cloudflare D1", "Hono", "WebSockets"],
@@ -152,10 +154,11 @@ export const projects = [
   {
     id: "codexa",
     title: "Codexa",
-    year: "Apr 2026 — Sep 2026",
+    year: "Apr 2026 — Current",
     role: "Terminal UI for coding agents",
     summary:
       "One terminal for the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and for local models. History, workspace locks, TOML config, themes, and slash commands. TypeScript, Bun, Ink.",
+    note: "The other long project, on the same footing as SyncroEdit — kept alive and rebuilt as the tooling around it changes, rather than finished and shelved.",
     proof:
       "On npm as @golba98/codexa. Twenty-five releases since May 2026; now v1.0.26. Six shipped provider routes — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.",
     stack: ["TypeScript", "Bun", "Ink", "npm"],
@@ -174,10 +177,11 @@ export const projects = [
   {
     id: "llm",
     title: "Codexa v1",
-    year: "Jul 2026",
+    year: "Jul 2026 — Current",
     role: "934M-parameter transformer, trained from scratch",
     summary:
       "A 24-layer decoder-only transformer built from scratch in Python and PyTorch, with a 16,384-token BPE tokenizer, memory-mapped data pipeline, mixed-precision training, and native conversational SFT.",
+    note: "Trained for Codexa, which is where the name comes from — the model Codexa is meant to run on its own rather than routing out to someone else's CLI.",
     proof:
       "The base run completed 10,000 optimizer steps and 655,360,000 tokens on CUDA with bf16 and AdamW8bit. Conversational SFT v2 then completed 6,000 steps and 103,459,920 tokens, reaching 1.5768 training loss and 2.0316 validation loss.",
     stack: ["PyTorch", "Python", "bf16", "BPE tokenizer", "CUDA"],
@@ -190,6 +194,7 @@ export const projects = [
     role: "Account-based streaming client",
     summary:
       "A private movie and TV library you sign into. Browse what's trending, search the catalogue, open a title for its details and trailer, and save the ones you want later. Accounts are issued by an admin, and a group can watch something together in a synced room.",
+    note: "Not a product for the public. It was built for my family, so we get private, secure movie viewing at home — which also means real people using something I maintain, close enough that I can watch for problems and fix them before anyone has a bad evening with it.",
     proof:
       "The TMDB token stays server-side behind an authenticated Worker proxy. First sign-in forces a password change; admins can revoke sessions, and every action lands in an audit log. Playwright tests cover Chromium, Firefox, Android, iPhone, and iPad. Hosts no media.",
     stack: ["React 19", "TypeScript", "Cloudflare Workers", "D1", "Playwright"],
@@ -200,20 +205,20 @@ export const projects = [
     repo: "https://github.com/golba98/Movie_App",
   },
   {
-    id: "cue",
-    title: "Cue",
-    year: "Jul 2026",
-    role: "Desktop assistant for authenticated coding CLIs",
+    id: "game",
+    title: "Forest RPG",
+    year: "Nov 2025 — Aug 2026",
+    role: "Top-down RPG engine, written from scratch",
     summary:
-      "A desktop app that floats a small overlay over whatever you're working on. Ask it a question, or let it look at your screen or listen to a meeting, and it answers through the coding CLIs you already have installed and signed in.",
+      "A browser game that builds its own world — forest, rivers, hills, weather, and a day that turns into night. You walk a character through it, fight what lives there, collect what it drops, and save a world you liked so you can come back to it.",
     proof:
-      "v0.2.0, packaged as an AppImage and an RPM. Adapters for Claude Code, Codex CLI, and Gemini CLI, each running read-only and sandboxed. It stores no provider API key — the CLIs keep their own logins. Transcription is local whisper.cpp; captured audio and screenshots are deleted after every request.",
-    stack: ["Electron", "TypeScript", "whisper.cpp", "PipeWire", "Vitest"],
-    shot: "/shots/cue.webp",
+      "Terrain comes from Perlin noise, hills from noise run through cellular-automata smoothing, and rivers from a walker that starts at a map edge and is jittered along its path by more noise, widening and branching as it goes. A BFS from the spawn point then prunes whatever the water cut off, and a second pass bridges any barrier that still blocks the route. PixiJS 7.4.3 draws the world with p5 1.6.0 layered over it for HUD and input; sixteen tests under Node's built-in runner cover the map server and the runtime contracts. It runs four ways — Node server, Live Server, Docker, or Cloudflare Workers static assets — and save/load is deliberately off on the deployed build, which has no server to save to.",
+    stack: ["JavaScript", "p5.js", "PixiJS", "Node.js", "Docker", "Cloudflare Workers"],
+    shot: "/shots/game.webp",
     shotAlt:
-      "The Cue overlay: a question answered through the Claude Code CLI, above the composer and its provider controls",
-    caption: "Screenshot of the app running locally.",
-    repo: "https://github.com/golba98/Cue-Helper",
+      "A generated Forest RPG world: a bridge crossing the river that cuts the map in two, sand banks along its edge, a mob tagged with its health bar and distance, and the health, stamina, gold, objective, minimap and XP panels around the edge of the screen",
+    caption: "Screenshot of the game running locally.",
+    repo: "https://github.com/golba98/Game_Development",
   },
 ];
 
@@ -253,10 +258,30 @@ export const lossCurve = {
     { step: 6000, loss: 2.0316, ppl: 7.626 },
   ],
   gpu: [
-    { value: 7700.7, display: "7,700.7", unit: "tok/s", label: "median base throughput" },
-    { value: 12920, display: "12,920", unit: "MiB", label: "peak reserved VRAM" },
-    { value: 10000, display: "10,000", unit: "steps", label: "completed base steps" },
-    { value: 6000, display: "6,000", unit: "steps", label: "completed SFT steps" },
+    {
+      value: 7700.7,
+      display: "7,700.7",
+      unit: "tok/s",
+      label: "median base throughput",
+    },
+    {
+      value: 12920,
+      display: "12,920",
+      unit: "MiB",
+      label: "peak reserved VRAM",
+    },
+    {
+      value: 10000,
+      display: "10,000",
+      unit: "steps",
+      label: "completed base steps",
+    },
+    {
+      value: 6000,
+      display: "6,000",
+      unit: "steps",
+      label: "completed SFT steps",
+    },
   ],
   caveat:
     "Native PyTorch inference works, but conversational quality remains under evaluation. The GGUF/LM Studio export failed its behavioral compatibility gate, so the native checkpoint is the current source of truth.",
@@ -271,13 +296,17 @@ export const repoBlurbs = {
     "A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.",
   Movie_App:
     "Account-based movie and TV app. React 19 and a Cloudflare Worker proxying TMDB, with D1-backed accounts.",
+  Game_Development:
+    "Top-down RPG engine in p5.js and PixiJS. Perlin-noise terrain, carved rivers, cellular-automata hills, and a flood fill that checks the world is playable.",
+  // Cue, the survey, and the data story are no longer listed projects, but the
+  // repos are still public and still show up as live GitHub cards, so they keep
+  // their blurbs.
   "Cue-Helper":
     "Fedora-first desktop assistant driving already-authenticated coding CLIs, with local whisper.cpp transcription.",
-  // The survey and the data story are no longer listed projects, but both repos
-  // are still public and still show up as live GitHub cards, so they keep their
-  // blurbs.
   "Survey-App":
     "Cloudflare Worker and D1 survey on South African cost of living, with Turnstile and no IP retention.",
+  "CM1040-Survey-App-Final":
+    "Getting Online in South Africa, 2006-2026. CM1040 coursework: three chapters built from validated JSON with no framework or third-party runtime script, checked with Playwright, axe-core, and the Nu HTML validator.",
   "Data-Visualizer":
     "A data story on South African inequality, built from WID.world, World Bank, and Stats SA figures.",
   "Data-Visualizer-": "Earlier TypeScript pass at the inequality data story, kept for reference.",
@@ -296,7 +325,6 @@ export const repoBlurbs = {
   Base_Converter_Expression: "Converts input between any two bases from 2 to 16.",
   Cloud_ChatBot: "Chatbot running on Cloudflare's edge.",
   Drawing_Project: "Browser drawing app with a canvas-based brush engine.",
-  Game_Development: "Game development experiments in JavaScript.",
   "weasel-sentence-simulator":
     "Implementation of Dawkins' weasel program — cumulative selection over random mutation.",
   Venn_Call: "Adds Venn diagram visualisation to the HP Prime calculator.",
@@ -304,7 +332,7 @@ export const repoBlurbs = {
   "hp-prime-ppl-python": "Python tooling for HP Prime PPL programs.",
   Aesthetic_Login: "Styled desktop login interface built in Python.",
   "Transition-Personal-Website": "Earlier iteration of this portfolio.",
-  "Personal-Website": "Earlier iteration of this portfolio.",
+  "Personal-Website-": "Earlier iteration of this portfolio.",
 };
 
 export const background = [
@@ -330,12 +358,80 @@ export const background = [
   },
 ];
 
+/**
+ * Everything here is in a repo, not on a course syllabus. Each item was checked
+ * against a manifest or a source file before it went in — package.json and
+ * requirements.txt across ~35 projects, plus the CDN pins in the game's HTML and
+ * the CMake build under the NumPy LLM. Nothing is here because it looks good.
+ */
 export const toolkitGroups = [
-  { label: "Languages", items: ["Python", "JavaScript", "TypeScript", "Java", "PHP", "SQL", "C#"] },
-  { label: "Web", items: ["React", "Node.js", "Cloudflare Workers", "D1", "Hono", "Vite"] },
+  {
+    label: "Languages",
+    items: ["Python", "JavaScript", "TypeScript", "C++", "SQL", "Bash"],
+  },
+  {
+    label: "Frontend",
+    items: [
+      "React 19",
+      "Next.js",
+      "React Router",
+      "Tailwind CSS",
+      "Vite",
+      "p5.js",
+      "PixiJS",
+      "Quill",
+      "Yjs / CRDT",
+    ],
+  },
+  {
+    label: "Backend & cloud",
+    items: [
+      "Cloudflare Workers",
+      "Pages Functions",
+      "Durable Objects",
+      "D1",
+      "Workers AI",
+      "Wrangler",
+      "Hono",
+      "Node.js",
+      "Bun",
+      "Express",
+      "FastAPI",
+      "Supabase",
+    ],
+  },
+  {
+    label: "Testing & quality",
+    items: ["Playwright", "Vitest", "Jest", "node:test", "ESLint", "Prettier", "axe-core"],
+  },
+  {
+    label: "AI & ML",
+    items: [
+      "PyTorch",
+      "NumPy",
+      "CuPy",
+      "CUDA",
+      "Hugging Face tokenizers",
+      "safetensors",
+      "faster-whisper",
+      "whisper.cpp",
+      "Ollama",
+      "LM Studio",
+      "MCP",
+    ],
+  },
   {
     label: "Systems & tooling",
-    items: ["Linux / Fedora", "Docker", "Git", "Bun", "Electron", "Playwright"],
+    items: [
+      "Linux / Fedora",
+      "Docker",
+      "Git",
+      "CMake",
+      "Electron",
+      "PipeWire",
+      "AppImage / RPM",
+      "Cloudflare Pages",
+      "Vercel",
+    ],
   },
-  { label: "AI & ML", items: ["PyTorch", "Ollama", "LM Studio", "whisper.cpp", "Local LLMs"] },
 ];

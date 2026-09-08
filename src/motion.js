@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 /*
  * The scroll-motion system. Nothing here animates in JS — one rAF-throttled
  * pass writes CSS custom properties and styles.css consumes them. The DOM
- * contract (data-reveal, data-stagger, data-parallax, data-scale, data-rail,
- * data-magnet) is documented in CLAUDE.md; new markup has to opt in.
+ * contract (data-reveal, data-stagger, data-parallax, data-scale, data-rail)
+ * is documented in CLAUDE.md; new markup has to opt in.
  *
  * `reduced()` gates all of it.
  */
@@ -164,36 +164,6 @@ export function useScrollMotion() {
   }, []);
 
   return { scrolled, active };
-}
-
-/** One delegated, rAF-throttled pointer listener powers card spotlights. */
-export function usePointerMagnet() {
-  useEffect(() => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return undefined;
-    let frame = 0;
-    let event;
-    const move = (next) => {
-      event = next;
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        const target = event.target.closest("[data-magnet]");
-        if (!target) return;
-        const rect = target.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 100;
-        const y = ((event.clientY - rect.top) / rect.height) * 100;
-        target.style.setProperty("--gx", `${x.toFixed(1)}%`);
-        target.style.setProperty("--gy", `${y.toFixed(1)}%`);
-        target.style.setProperty("--mx", `${((x - 50) * 0.16).toFixed(2)}px`);
-        target.style.setProperty("--my", `${((y - 50) * 0.16).toFixed(2)}px`);
-      });
-    };
-    document.addEventListener("pointermove", move, { passive: true });
-    return () => {
-      document.removeEventListener("pointermove", move);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, []);
 }
 
 /**

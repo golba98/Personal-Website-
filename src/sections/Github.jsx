@@ -76,7 +76,6 @@ export default function Github({ data, loading, error }) {
               target="_blank"
               rel="noreferrer"
               data-stagger
-              data-magnet
               // These mount after the reveal observer has run, so set the
               // cascade index here rather than relying on it to assign one.
               style={{ "--i": index }}

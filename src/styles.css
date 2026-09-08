@@ -270,8 +270,7 @@ code {
     clip-path: none;
   }
 
-  .aurora,
-  .scroll-dot {
+  .aurora {
     display: none;
   }
 
@@ -392,7 +391,7 @@ code {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: clamp(76px, 13vh, 148px) 0 116px;
+  padding: clamp(76px, 13vh, 148px) 0 80px;
 }
 
 /* Two slow-drifting light pools. The only decorative element on the page. */
@@ -490,62 +489,6 @@ code {
   font-size: 19px;
   color: var(--dim);
   text-wrap: pretty;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 38px;
-}
-
-.scroll-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 76px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dimmer);
-}
-
-.scroll-track {
-  position: relative;
-  width: 22px;
-  height: 34px;
-  border: 1px solid var(--hairline-2);
-  border-radius: 12px;
-}
-
-.scroll-dot {
-  position: absolute;
-  left: 50%;
-  top: 7px;
-  width: 3px;
-  height: 6px;
-  margin-left: -1.5px;
-  border-radius: 2px;
-  background: var(--dim);
-  animation: scroll-dot 2s var(--ease) infinite;
-}
-
-@keyframes scroll-dot {
-  0% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(13px);
-  }
 }
 
 /* ── Shared section furniture ────────────────────────────────────────────── */
@@ -777,6 +720,16 @@ a:hover .arrow {
   margin-top: 18px;
   font-size: 17px;
   color: var(--dim);
+  text-wrap: pretty;
+}
+
+/* Why the project exists. An aside, so it sits a step below the summary and
+   carries no rule — that mark is reserved for the claim you can check. */
+.project-note {
+  max-width: 46rem;
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--dimmer);
   text-wrap: pretty;
 }
 
@@ -1219,44 +1172,17 @@ a:hover .arrow {
   overflow: hidden;
   transition:
     border-color 0.3s var(--ease),
+    background-color 0.25s var(--ease),
     transform 0.35s var(--ease-out);
 }
 
-/* Neutral wash rises from the bottom on hover. */
-.repo::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.045));
-  opacity: 0;
-  transition: opacity 0.4s var(--ease);
-}
-
-.repo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(240px at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.06), transparent 70%);
-  transition: opacity 0.25s var(--ease);
-}
-
-a.repo:hover {
-  border-color: var(--hairline-2);
+/* Picking a card reads as a selection: flat fill, brighter edge. No wash and no
+   cursor-following light — a card either is the one you're on or it isn't. */
+a.repo:hover,
+a.repo:focus-visible {
+  border-color: var(--ink-3);
+  background: var(--surface-2);
   transform: translateY(-4px);
-}
-
-a.repo:hover::before {
-  opacity: 1;
-}
-
-a.repo:hover::after { opacity: 1; }
-
-.repo h3,
-.repo p,
-.repo-meta {
-  position: relative;
 }
 
 .repo h3 {
@@ -1593,7 +1519,7 @@ a.repo:hover::after { opacity: 1; }
   }
 
   .hero {
-    padding-bottom: 88px;
+    padding-bottom: 60px;
   }
 
   .hero-title {
@@ -1608,10 +1534,6 @@ a.repo:hover::after { opacity: 1; }
   .hero-lede,
   .lede {
     font-size: 17px;
-  }
-
-  .scroll-hint {
-    margin-top: 56px;
   }
 
   .section-head h2,
@@ -1668,7 +1590,6 @@ a.repo:hover::after { opacity: 1; }
     grid-template-columns: 1fr;
   }
 
-  .hero-actions .button,
   .contact-actions .button {
     flex: 1 1 auto;
   }
