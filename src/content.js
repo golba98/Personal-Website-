@@ -175,19 +175,6 @@ export const projects = [
     repo: "https://github.com/golba98/Codexa",
   },
   {
-    id: "llm",
-    title: "Codexa v1",
-    year: "Jul 2026 — Current",
-    role: "934M-parameter transformer, trained from scratch",
-    summary:
-      "A 24-layer decoder-only transformer built from scratch in Python and PyTorch, with a 16,384-token BPE tokenizer, memory-mapped data pipeline, mixed-precision training, and native conversational SFT.",
-    note: "Trained for Codexa, which is where the name comes from — the model Codexa is meant to run on its own rather than routing out to someone else's CLI.",
-    proof:
-      "The base run completed 10,000 optimizer steps and 655,360,000 tokens on CUDA with bf16 and AdamW8bit. Conversational SFT v2 then completed 6,000 steps and 103,459,920 tokens, reaching 1.5768 training loss and 2.0316 validation loss.",
-    stack: ["PyTorch", "Python", "bf16", "BPE tokenizer", "CUDA"],
-    repo: "https://github.com/golba98/LLM-Codexa-v1",
-  },
-  {
     id: "movies",
     title: "Fedora Movies",
     year: "Jul 2026",
@@ -219,6 +206,19 @@ export const projects = [
       "A generated Forest RPG world: a bridge crossing the river that cuts the map in two, sand banks along its edge, a mob tagged with its health bar and distance, and the health, stamina, gold, objective, minimap and XP panels around the edge of the screen",
     caption: "Screenshot of the game running locally.",
     repo: "https://github.com/golba98/Game_Development",
+  },
+  {
+    id: "llm",
+    title: "Codexa v1",
+    year: "Jul 2026 — Current",
+    role: "934M-parameter transformer, trained from scratch",
+    summary:
+      "A 24-layer decoder-only transformer built from scratch in Python and PyTorch, with a 16,384-token BPE tokenizer, memory-mapped data pipeline, mixed-precision training, and native conversational SFT.",
+    note: "Trained for Codexa, which is where the name comes from — the model Codexa is meant to run on its own rather than routing out to someone else's CLI.",
+    proof:
+      "The base run completed 10,000 optimizer steps and 655,360,000 tokens on CUDA with bf16 and AdamW8bit. Conversational SFT v2 then completed 6,000 steps and 103,459,920 tokens, reaching 1.5768 training loss and 2.0316 validation loss.",
+    stack: ["PyTorch", "Python", "bf16", "BPE tokenizer", "CUDA"],
+    repo: "https://github.com/golba98/LLM-Codexa-v1",
   },
 ];
 
