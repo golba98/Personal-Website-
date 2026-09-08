@@ -124,7 +124,7 @@ export default function Model() {
           <Words text="I trained a model" />
         </h2>
         <p className="lede" data-stagger>
-          934M parameters, trained from scratch on one 16 GB GPU. Base pretraining and conversational SFT are both complete; native inference remains the trusted runtime.
+          934M parameters, trained from scratch on one 16 GB GPU. Base pretraining and conversational SFT are both complete; native PyTorch is still the only runtime that runs it correctly.
         </p>
       </div>
 

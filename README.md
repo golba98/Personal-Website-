@@ -52,7 +52,7 @@ minimum permissions needed for public GraphQL profile data.
 optional endpoint ships as two adapters over one shared implementation, so either
 platform serves the same contract:
 
-- **Vercel** — zero config; `api/github.js` is picked up by convention.
+- **Vercel** — no configuration; `api/github.js` is picked up by convention.
 - **Cloudflare Pages** — build command `npm run build`, output directory `dist`;
   `functions/api/github.js` is mounted at `/api/github`. Set
   `VITE_GITHUB_USERNAME` as a build variable and `GITHUB_TOKEN` as a secret.
