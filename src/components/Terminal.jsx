@@ -67,10 +67,10 @@ export function Install({ pkg }) {
   );
 }
 
-/** Faithful startup recreation from Codexa v1.0.8 source; never presented as CLI output. */
+/** Faithful startup recreation from Ubume source; never presented as CLI output. */
 export function Terminal({ screen, compact, depth = 1 }) {
   /*
-   * Below 72 columns the real Codexa swaps the 6-row wordmark for the one-row
+   * Below 72 columns the real Ubume swaps the 6-row wordmark for the one-row
    * compact logo, so the recreation does the same rather than making a phone
    * scroll a 100-column grid sideways. 760px is where 100 columns stops fitting.
    */
@@ -134,11 +134,11 @@ export function Terminal({ screen, compact, depth = 1 }) {
         role="group"
         aria-label={
           overflows
-            ? "Codexa startup screen, scrollable horizontally"
-            : "Codexa startup screen"
+            ? "Ubume startup screen, scrollable horizontally"
+            : "Ubume startup screen"
         }
       >
-        <span className="sr-only">CODEXA</span>
+        <span className="sr-only">UBUME</span>
         <pre className="term-body" aria-hidden="true" style={{ "--cols": width }}>
           <span className="tl">{"\n"}</span>
           {/* Own line box: the block glyphs only stack solid at line-height 1. */}

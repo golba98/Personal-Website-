@@ -74,7 +74,7 @@ function Project({ project, index }) {
 
         {/*
           One visual per project. A real screenshot always wins over the
-          recreated terminal, so dropping a `shot` on the Codexa entry upgrades
+          recreated terminal, so dropping a `shot` on the Ubume entry upgrades
           it with no code change — and never renders both.
         */}
         {(project.shot || project.startup) && (

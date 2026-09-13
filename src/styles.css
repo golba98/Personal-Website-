@@ -773,7 +773,7 @@ a:hover .arrow {
   color: var(--dimmer);
 }
 
-/* Same rule as the Codexa wordmark: the banner is drawn from half-block glyphs
+/* Same rule as the Ubume wordmark: the banner is drawn from half-block glyphs
    and only stacks solid at line-height 1, which needs its own block-level line
    box. Compound selector because `.tl { display: inline }` is later and equal. */
 .tl.term-banner {
@@ -963,7 +963,7 @@ a:hover .arrow {
 @media (max-width: 760px) {
   /* Tighter gutters so the 48-column compact grid fits a 390px phone without
      scrolling. Trimming padding is preferable to shrinking the type or faking
-     a narrower terminal than Codexa would actually draw. */
+     a narrower terminal than Ubume would actually draw. */
   .term-body {
     padding: 16px 12px;
     font-size: 11px;
