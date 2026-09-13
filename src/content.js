@@ -173,7 +173,7 @@ export const projects = [
     startupCompact,
     caption:
       "Recreated from the Ubume v0.1.0 source — logo from logoVariants.ts, layout from timelineMeasure.ts, composer from BottomComposer.tsx. Not a screenshot.",
-    repo: "https://github.com/golba98/Codexa",
+    repo: "https://github.com/golba98/Ubume",
   },
   {
     id: "movies",
@@ -291,7 +291,7 @@ export const lossCurve = {
 export const repoBlurbs = {
   SyncroEdit:
     "Collaborative document workspace with in-document chat. Yjs CRDTs over WebSockets, coordinated by Cloudflare Durable Objects.",
-  Codexa:
+  Ubume:
     "Ubume, a terminal UI for coding agents — the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and local models. Published on npm as ubume.",
   "LLM-Codexa-v1":
     "A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.",
