@@ -9,7 +9,7 @@
  *  - model numbers: logs/codexa-900m-base-v1/**, logs/codexa-900m-sft-v2/**,
  *    and configs/1b.yaml in the LLM repo
  *  - screenshots in /public/shots: captured from these apps running locally
- *  - the Codexa startup screen: read out of the Codexa source, see `startup`
+ *  - the Ubume startup screen: read out of the Ubume source, see `startup`
  *  - SyncroEdit's architecture: wrangler.toml bindings and src-worker/ in
  *    SyncroEdit; the two-user collaboration claim is what
  *    tests/e2e/collaboration.test.js actually drives
@@ -46,11 +46,11 @@ export const navItems = [
 ];
 
 /**
- * Codexa's startup screen, stored as parts rather than pre-drawn box art so the
+ * Ubume's startup screen, stored as parts rather than pre-drawn box art so the
  * component redraws the borders and the character grid can't drift.
  *
- * Read out of the Codexa v1.0.26 source on 2026-09-04:
- *   logo      src/ui/render/logoVariants.ts      — CODEXA_WORDMARK, 6 rows, 49 cols each
+ * Read out of the Ubume v0.1.0 source on 2026-09-13:
+ *   logo      src/ui/render/logoVariants.ts      — UBUME_WORDMARK, 6 rows, 45 cols each
  *   layout    src/ui/timeline/timelineMeasure.ts — meta sits right of the logo on a
  *             2-column gap, vertically centred, so it starts on logo row 1
  *   composer  src/ui/chrome/BottomComposer.tsx   — round border, "❯ " prefix, placeholder
@@ -59,7 +59,7 @@ export const navItems = [
  * The screen shows the local route, so the footer is derived rather than copied
  * from the Claude Code one it used to show. runtimeDisplay.ts drops the
  * reasoning tag when providerId is "local" — local runtimes own that setting and
- * Codexa cannot adjust it — so there is no "(Low)" after the model, and the
+ * Ubume cannot adjust it — so there is no "(Low)" after the model, and the
  * model is the raw id LM Studio reports rather than a prettified name. The "~"
  * is gone with it: it marks an *estimated* context length, and a local model's
  * length comes back from /v1/models as verified. formatContextCompact() then
@@ -76,42 +76,43 @@ export const startup = {
   // composer to the bottom, so the space between logo and composer is blank.
   cols: 100,
   rows: 22,
-  logoWidth: 49,
+  logoWidth: 45,
   gap: 2,
   logo: [
-    " ██████╗ ██████╗ ██████╗ ███████╗██╗  ██╗ █████╗ ",
-    "██╔════╝██╔═══██╗██╔══██╗██╔════╝╚██╗██╔╝██╔══██╗",
-    "██║     ██║   ██║██║  ██║█████╗   ╚███╔╝ ███████║",
-    "██║     ██║   ██║██║  ██║██╔══╝   ██╔██╗ ██╔══██║",
-    "╚██████╗╚██████╔╝██████╔╝███████╗██╔╝ ██╗██║  ██║",
-    " ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝",
+    "██╗   ██╗██████╗ ██╗   ██╗███╗   ███╗███████╗",
+    "██║   ██║██╔══██╗██║   ██║████╗ ████║██╔════╝",
+    "██║   ██║██████╔╝██║   ██║██╔████╔██║█████╗  ",
+    "██║   ██║██╔══██╗██║   ██║██║╚██╔╝██║██╔══╝  ",
+    "╚██████╔╝██████╔╝╚██████╔╝██║ ╚═╝ ██║███████╗",
+    " ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚══════╝",
   ],
   // Three tones by row index, mirroring logoPrimary / logoSecondary / logoShadow.
   logoTone: [1, 1, 2, 2, 3, 3],
-  meta: ["Codexa v1.0.26", "Workspace: Codexa", "Provider: Local"],
+  meta: ["Ubume v0.1.0", "Workspace: Ubume", "Provider: Local"],
   prompt: "❯ ",
-  placeholder: "Ask Codexa, run !shell, or use /command",
+  placeholder: "Ask Ubume, run !shell, or use /command",
   footerLeft: "Local / qwen/qwen3.8-27b",
   footerRight: "Context: 0 / 131K",
 };
 
 /**
- * The same screen in a narrow terminal. Not a mobile compromise — Codexa really
+ * The same screen in a narrow terminal. Not a mobile compromise — Ubume really
  * does this: selectLogoVariant() in src/ui/render/logoVariants.ts returns the
  * 6-row wordmark at >= 72 columns (LOGO_LARGE_MIN_COLS) and the one-row
- * LOGO_COMPACT, "✦ CODEXA", from 48 (LOGO_COMPACT_MIN_COLS) up to that.
+ * LOGO_COMPACT, "✦ UBUME", from 48 (LOGO_COMPACT_MIN_COLS) up to that.
  * 48x14 is the smallest honest window: LOGO_COMPACT_MIN_ROWS is 12.
  *
- * The placeholder shortens because the real composer truncates to fit its box.
+ * The placeholder does not shorten: getPlaceholder() in BottomComposer.tsx returns
+ * the 38-column idle text, which fits the 46-column composer whole.
  */
 export const startupCompact = {
   ...startup,
   cols: 48,
   rows: 14,
-  logo: ["✦ CODEXA"],
+  logo: ["✦ UBUME"],
   logoTone: [1],
-  logoWidth: 8,
-  placeholder: "Ask Codexa or use /command",
+  logoWidth: 7,
+  placeholder: "Ask Ubume, run !shell, or use /command",
 };
 
 /**
@@ -152,27 +153,27 @@ export const projects = [
     repo: "https://github.com/golba98/SyncroEdit",
   },
   {
-    id: "codexa",
-    title: "Codexa",
+    id: "ubume",
+    title: "Ubume",
     year: "Apr 2026 — Current",
     role: "Terminal UI for coding agents",
     summary:
       "One terminal for the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and for local models. History, workspace locks, TOML config, themes, and slash commands. TypeScript, Bun, Ink.",
     note: "The other long project, on the same footing as SyncroEdit — kept alive and rebuilt as the tooling around it changes, rather than finished and shelved.",
     proof:
-      "On npm as @golba98/codexa. Twenty-five releases since May 2026; now v1.0.26. Six provider routes work — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.",
+      "On npm as ubume, now v0.1.0 — renamed from @golba98/codexa, which shipped 27 releases from May to September 2026 (1.0.1 to 1.0.28). Six provider routes work — those five CLIs plus any OpenAI-compatible local server — with two Codexa Native runtimes held behind a dev build.",
     stack: ["TypeScript", "Bun", "Ink", "npm"],
     npm: {
-      name: "@golba98/codexa",
-      version: "1.0.26",
-      url: "https://www.npmjs.com/package/@golba98/codexa",
-      install: "npm install -g @golba98/codexa",
+      name: "ubume",
+      version: "0.1.0",
+      url: "https://www.npmjs.com/package/ubume",
+      install: "npm install -g ubume",
     },
     startup,
     startupCompact,
     caption:
-      "Recreated from the Codexa v1.0.26 source — logo from logoVariants.ts, layout from timelineMeasure.ts, composer from BottomComposer.tsx. Not a screenshot.",
-    repo: "https://github.com/golba98/Codexa",
+      "Recreated from the Ubume v0.1.0 source — logo from logoVariants.ts, layout from timelineMeasure.ts, composer from BottomComposer.tsx. Not a screenshot.",
+    repo: "https://github.com/golba98/Ubume",
   },
   {
     id: "movies",
@@ -214,7 +215,7 @@ export const projects = [
     role: "934M-parameter transformer, trained from scratch",
     summary:
       "A 24-layer decoder-only transformer built from scratch in Python and PyTorch, with a 16,384-token BPE tokenizer, memory-mapped data pipeline, mixed-precision training, and native conversational SFT.",
-    note: "Trained for Codexa, which is where the name comes from — the model Codexa is meant to run on its own rather than routing out to someone else's CLI.",
+    note: "Named after Codexa, the terminal UI now called Ubume — it is the model Ubume is meant to run on its own rather than routing out to someone else's CLI.",
     proof:
       "The base run completed 10,000 optimizer steps and 655,360,000 tokens on CUDA with bf16 and AdamW8bit. Conversational SFT v2 then completed 6,000 steps and 103,459,920 tokens, reaching 1.5768 training loss and 2.0316 validation loss.",
     stack: ["PyTorch", "Python", "bf16", "BPE tokenizer", "CUDA"],
@@ -290,8 +291,8 @@ export const lossCurve = {
 export const repoBlurbs = {
   SyncroEdit:
     "Collaborative document workspace with in-document chat. Yjs CRDTs over WebSockets, coordinated by Cloudflare Durable Objects.",
-  Codexa:
-    "Terminal UI for coding agents — the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and local models. Published on npm.",
+  Ubume:
+    "Ubume, a terminal UI for coding agents — the Codex, Claude Code, Gemini, Mistral Vibe, and Antigravity CLIs, and local models. Published on npm as ubume.",
   "LLM-Codexa-v1":
     "A 934M-parameter decoder-only transformer trained from scratch in PyTorch, with native conversational SFT inference.",
   Movie_App:
